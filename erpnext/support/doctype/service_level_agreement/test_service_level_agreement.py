@@ -2,6 +2,7 @@
 # See license.txt
 import datetime
 import json
+from zoneinfo import ZoneInfo
 
 import frappe
 from frappe.utils import flt
@@ -9,6 +10,7 @@ from frappe.utils import flt
 from erpnext.support.doctype.issue_priority.test_issue_priority import make_priorities
 from erpnext.support.doctype.service_level_agreement.service_level_agreement import (
 	get_service_level_agreement_fields,
+	get_user_time,
 )
 from erpnext.tests.utils import ERPNextTestSuite
 
@@ -414,6 +416,15 @@ class TestServiceLevelAgreement(ERPNextTestSuite):
 		lead.save()
 		applied_sla = frappe.db.get_value("Lead", lead.name, "service_level_agreement")
 		self.assertFalse(applied_sla)
+
+	def test_get_user_time(self):
+		frappe.db.set_value("User", "Administrator", "time_zone", "Asia/Tokyo")
+
+		user_time = get_user_time("Administrator")
+		expected = datetime.datetime.now(ZoneInfo("Asia/Tokyo")).replace(tzinfo=None)
+
+		self.assertIsNone(user_time.tzinfo)
+		self.assertLess(abs(expected - user_time), datetime.timedelta(minutes=1))
 
 
 def get_link_filters(field_doctype, filters):

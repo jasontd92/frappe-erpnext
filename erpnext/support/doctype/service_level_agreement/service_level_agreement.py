@@ -1195,7 +1195,7 @@ def get_time_in_timedelta(time):
 
 
 def now_datetime(user):
-	dt = convert_utc_to_user_timezone(datetime.utcnow(), user)
+	dt = convert_utc_to_user_timezone(datetime.now(timezone.utc), user)
 	return dt.replace(tzinfo=None)
 
 
